@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wolf-Rabbit Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div class="controls">
+            <h1>Wolf-Rabbit Game</h1>
+            <div class="input-group">
+                <label>Угол (градусы):</label>
+                <input type="number" id="angle" step="0.000001">
+            </div>
+            <div class="input-group">
+                <label>Количество ходов:</label>
+                <input type="number" id="steps" min="1" value="1">
+            </div>
+            <div class="button-group">
+                <button id="moveBtn">Сделать ход</button>
+                <button id="resetBtn">Сброс</button>
+            </div>
+            <div class="stats">
+                <p>Координаты Зайца: <span id="rabbitCoords">0.000000, 0.000000</span></p>
+                <p>Координаты Волка: <span id="wolfCoords">0.000000, 0.000000</span></p>
+                <p>Расстояние: <span id="distance">0.000000</span></p>
+            </div>
+        </div>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html> 
