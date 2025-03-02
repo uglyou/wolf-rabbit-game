@@ -178,13 +178,23 @@ function updateInfo() {
     distanceEl.textContent = distance.toFixed(6);
 }
 
-// Генерация подсказки для волка (точка не дальше 1 юнита от зайца)
+// Генерация подсказки для волка (точка на расстоянии 1 юнит от зайца, магнитится к оси X)
 function generateHint() {
-    const angle = Math.random() * 2 * Math.PI; // Случайный угол
-    hint = {
-        x: rabbit.x + Math.cos(angle),
-        y: rabbit.y + Math.sin(angle)
-    };
+    const distanceToXAxis = Math.abs(rabbit.y);
+    if (distanceToXAxis < 1) {
+        // Если заяц близко к оси X, подсказка на оси
+        hint = {
+            x: rabbit.x,
+            y: 0
+        };
+    } else {
+        // Если заяц дальше одного юнита от оси X, подсказка на расстоянии 1 юнит в направлении оси X
+        const direction = rabbit.y > 0 ? -1 : 1;
+        hint = {
+            x: rabbit.x,
+            y: rabbit.y + direction
+        };
+    }
     hintPath.push({ ...hint });
 }
 
@@ -229,8 +239,6 @@ function initGame() {
     rabbitPath = [{ x: 0, y: 0 }, { ...rabbit }];
     wolfPath = [{ ...wolf }];
     hintPath = [];
-    
-    generateHint();
     
     drawGrid();
     drawEntities();
