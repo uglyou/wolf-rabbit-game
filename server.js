@@ -9,46 +9,61 @@ let leaderboard = [];
 
 // Эндпоинт для расчёта движения зайца и волка
 app.post('/api/move', (req, res) => {
-    const { angle, steps, rabbitX, rabbitY, wolfX, wolfY } = req.body;
+    let { angle, steps, rabbitX, rabbitY, wolfX, wolfY } = req.body;
+
+    // Ограничиваем максимальное количество шагов, чтобы избежать астрономических значений
+    const maxSteps = 10000000;
+    if (steps > maxSteps) {
+        steps = maxSteps;
+    }
     
-    // Расчет нового положения зайца
+    // Преобразуем угол в радианы
     const radians = angle * Math.PI / 180;
+    
+    // Вычисляем новые координаты зайца напрямую
     const newRabbitX = rabbitX + Math.cos(radians) * steps;
     const newRabbitY = rabbitY + Math.sin(radians) * steps;
     
-    // Генерация подсказки (точка на оси X)
+    // Подсказка — точка на оси X из нового положения зайца
     const hintX = newRabbitX;
     const hintY = 0;
     
-    // Расчет нового положения волка (движение к подсказке)
+    // Вычисляем разницу между координатами волка и подсказкой
+    const dx = hintX - wolfX;
+    const dy = hintY - wolfY;
+    const d2 = dx * dx + dy * dy;  // Квадрат расстояния
+    
     let newWolfX = wolfX;
     let newWolfY = wolfY;
     
-    for (let i = 0; i < steps; i++) {
-        const dx = hintX - newWolfX;
-        const dy = hintY - newWolfY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        
-        if (distance > 0) {
-            newWolfX += dx / distance;
-            newWolfY += dy / distance;
+    // Если расстояние больше нуля, перемещаем Волка
+    if (d2 > 0) {
+        // Если число шагов достаточно, чтобы волк добежал до подсказки, перемещаем его сразу в неё
+        if (steps * steps >= d2) {
+            newWolfX = hintX;
+            newWolfY = hintY;
+        } else {
+            const distance = Math.sqrt(d2);
+            newWolfX = wolfX + (dx / distance) * steps;
+            newWolfY = wolfY + (dy / distance) * steps;
         }
     }
     
-    // Расчет расстояния между зайцем и волком
-    const finalDistance = Math.sqrt(
-        Math.pow(newRabbitX - newWolfX, 2) + 
-        Math.pow(newRabbitY - newWolfY, 2)
-    );
+    // Итоговое расстояние между зайцем и волком
+    const deltaX = newRabbitX - newWolfX;
+    const deltaY = newRabbitY - newWolfY;
+    const finalDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     
+    // Масштабирование координат для корректной отрисовки на клиенте
+    const scaleFactor = 1e-6;
     res.json({
-        rabbitX: newRabbitX,
-        rabbitY: newRabbitY,
-        wolfX: newWolfX,
-        wolfY: newWolfY,
-        hintX,
-        hintY,
-        distance: finalDistance
+        rabbitX: newRabbitX * scaleFactor,
+        rabbitY: newRabbitY * scaleFactor,
+        wolfX: newWolfX * scaleFactor,
+        wolfY: newWolfY * scaleFactor,
+        hintX: hintX * scaleFactor,
+        hintY: hintY * scaleFactor,
+        distance: finalDistance * scaleFactor
     });
 });
 
